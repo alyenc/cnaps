@@ -1,13 +1,5 @@
 package com.alyenc.cnaps.service;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.alyenc.cnaps.bean.BankBean;
-import com.alyenc.cnaps.bean.BranchBankBean;
-import com.alyenc.cnaps.bean.CityBean;
-import com.alyenc.cnaps.bean.ProvinceBean;
-import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -15,7 +7,19 @@ import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.alyenc.cnaps.bean.BankBean;
+import com.alyenc.cnaps.bean.BranchBankBean;
+import com.alyenc.cnaps.bean.CityBean;
+import com.alyenc.cnaps.bean.ProvinceBean;
+import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 
 /**
  * 请求数据 Created by chenxiushen on 2017/1/11.
