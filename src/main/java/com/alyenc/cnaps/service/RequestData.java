@@ -13,24 +13,37 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alyenc.cnaps.bean.BankBean;
 import com.alyenc.cnaps.bean.BranchBankBean;
 import com.alyenc.cnaps.bean.CityBean;
 import com.alyenc.cnaps.bean.ProvinceBean;
-import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 
 /**
  * 请求数据 Created by chenxiushen on 2017/1/11.
  */
 public class RequestData {
-	private static List<BankBean> bankList = new ArrayList<BankBean>();
-	private static List<ProvinceBean> provinceList = new ArrayList<ProvinceBean>();
-	private static List<CityBean> cityList = new ArrayList<CityBean>();
-	private static List<BranchBankBean> branchBankList = new ArrayList<BranchBankBean>();
+	private List<BankBean> bankList = new ArrayList<BankBean>();
+	private List<ProvinceBean> provinceList = new ArrayList<ProvinceBean>();
+	private List<CityBean> cityList = new ArrayList<CityBean>();
+	private List<BranchBankBean> branchBankList = new ArrayList<BranchBankBean>();
 
-	public static JSONObject reuqestUrls(String url , Map<String,String> params) throws MalformedURLException, IOException {
+	@Autowired
+	private PersistentData persistentData;
+	
+	
+	public PersistentData getPersistentData() {
+		return persistentData;
+	}
+
+	public void setPersistentData(PersistentData persistentData) {
+		this.persistentData = persistentData;
+	}
+
+	public JSONObject reuqestUrls(String url , Map<String,String> params) throws MalformedURLException, IOException {
         Set<String> keySet = params.keySet();
         StringBuffer paramsStr = new StringBuffer();
         int i = 0;
@@ -50,6 +63,8 @@ public class RequestData {
         URLConnection conn = realUrl.openConnection();
         conn.setRequestProperty("accept", "*/*");
         conn.setRequestProperty("connection", "Keep-Alive");
+        conn.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
+        conn.setRequestProperty("Accept-Charset", "utf-8");
         conn.setRequestProperty("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)");
         conn.setDoOutput(true);
         conn.setDoInput(true);
@@ -68,11 +83,10 @@ public class RequestData {
         } else if(response.toString().substring(0,1).equals("[")){
             json.put("result",JSONArray.parseArray(response.toString()));
         }
-        System.out.println(json);
 	    return json;
 	}
 
-	private static void readAllBanks(){
+	private void readAllBanks(){
 		String url = "http://www.zybank.com.cn/zyb/queryallbank.do";
 		Map<String,String> params = new HashMap<String,String>();
 		try {
@@ -87,6 +101,7 @@ public class RequestData {
 				bankBean.setBankName(bankName);
 				bankList.add(bankBean);
 			}
+			persistentData.saveBankInfo(bankList);
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -94,7 +109,7 @@ public class RequestData {
 		}
 	}
 
-	private static void readAllProvince() throws FailingHttpStatusCodeException, MalformedURLException, IOException {
+	private void readAllProvince() throws MalformedURLException, IOException {
 		String url = "http://www.zybank.com.cn/zyb/queryprovince.do";
 		Map<String,String> params = new HashMap<String,String>();
 		try {
@@ -116,7 +131,7 @@ public class RequestData {
 		}
 	}
 
-	private static void readAllCity(String pProvinceCode) {
+	private void readAllCity(String pProvinceCode) {
         String url = "http://www.zybank.com.cn/zyb/queryCityByProvinceId";
         Map<String,String> params = new HashMap<String,String>();
         params.put("provinceCode",pProvinceCode);
@@ -142,7 +157,7 @@ public class RequestData {
         }
 	}
 	
-	private static void readAllBeanchBank(String pBankCode, String pCityCode) {
+	private void readAllBeanchBank(String pBankCode, String pCityCode) {
 
         String url = "http://www.zybank.com.cn/zyb/queryallrtgsnode.do";
         Map<String,String> params = new HashMap<String,String>();
@@ -176,23 +191,23 @@ public class RequestData {
         }
 	}
 
-	public static void doRequest() throws FailingHttpStatusCodeException,  IOException {
+	public void doRequest() throws  IOException {
         readAllBanks();    //查询所有的银行列表
-        readAllProvince();    //查询省份列表
-        //根据省份查询城市列表
-        if(provinceList.size() != 0){
-            for(ProvinceBean item : provinceList){
-                readAllCity(item.getProvinceCode());
-            }
-        }
-
-        //根据城市和银行查询支行列表
-        if(bankList.size() != 0 && cityList.size() != 0){
-            for(BankBean bank : bankList){
-                for(CityBean city : cityList){
-                    readAllBeanchBank(bank.getBankCode(), city.getCityCode());
-                }
-            }
-        }
+//        readAllProvince();    //查询省份列表
+//        //根据省份查询城市列表
+//        if(provinceList.size() != 0){
+//            for(ProvinceBean item : provinceList){
+//                readAllCity(item.getProvinceCode());
+//            }
+//        }
+//
+//        //根据城市和银行查询支行列表
+//        if(bankList.size() != 0 && cityList.size() != 0){
+//            for(BankBean bank : bankList){
+//                for(CityBean city : cityList){
+//                    readAllBeanchBank(bank.getBankCode(), city.getCityCode());
+//                }
+//            }
+//        }
 	}
 }
