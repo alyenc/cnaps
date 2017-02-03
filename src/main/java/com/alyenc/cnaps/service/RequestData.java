@@ -210,7 +210,7 @@ public class RequestData {
             	for(CityBean city : cityList){
                     readAllBeanchBank(bank.getBankCode(), city.getCityCode());
                 	System.out.println(bank.getBankCode() + "," + city.getCityCode());
-                    Thread.sleep(10);
+                    Thread.sleep(100);
                 }
             }
         }
