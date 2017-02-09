@@ -21,6 +21,7 @@ import com.alyenc.cnaps.bean.BankBean;
 import com.alyenc.cnaps.bean.BranchBankBean;
 import com.alyenc.cnaps.bean.CityBean;
 import com.alyenc.cnaps.bean.ProvinceBean;
+import com.alyenc.cnaps.dao.PersistentDataImpl;
 import com.alyenc.cnaps.service.RequestData;
 
 /**
