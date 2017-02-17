@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -27,12 +28,9 @@ import com.alyenc.cnaps.service.RequestData;
 /**
  * 请求数据 Created by chenxiushen on 2017/1/11.
  */
+@Service("requestData")
 public class RequestDataImpl implements RequestData{
-	private static List<BankBean> bankList = new ArrayList<BankBean>();
-	private static List<ProvinceBean> provinceList = new ArrayList<ProvinceBean>();
-	private static List<CityBean> cityList = new ArrayList<CityBean>();
-	private static List<BranchBankBean> branchBankList = new ArrayList<BranchBankBean>();
-
+	
 	@Autowired
 	private static PersistentDataImpl persistentData;
 	
@@ -59,7 +57,7 @@ public class RequestDataImpl implements RequestData{
                 paramsStr.append("&");
             }
         }
-        System.out.println(paramsStr);
+        
         PrintWriter out = null;
         BufferedReader inputStream = null;
         URL realUrl = new URL(url);
@@ -87,7 +85,8 @@ public class RequestDataImpl implements RequestData{
 	    return json;
 	}
 
-	public void readAllBanks(){
+	public List<BankBean> readAllBanks(){
+		List<BankBean> bankList = new ArrayList<BankBean>();
 		String url = "http://www.zybank.com.cn/zyb/queryallbank.do";
 		Map<String,String> params = new HashMap<String,String>();
 		try {
@@ -107,9 +106,11 @@ public class RequestDataImpl implements RequestData{
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		return bankList;
 	}
 
-	public void readAllProvince() throws MalformedURLException, IOException {
+	public List<ProvinceBean> readAllProvince() {
+		List<ProvinceBean> provinceList = new ArrayList<ProvinceBean>();
 		String url = "http://www.zybank.com.cn/zyb/queryprovince.do";
 		Map<String,String> params = new HashMap<String,String>();
 		try {
@@ -129,9 +130,11 @@ public class RequestDataImpl implements RequestData{
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		return provinceList;
 	}
 
-	public void readAllCity(String pProvinceCode) {
+	public List<CityBean> readAllCity(String pProvinceCode) {
+		List<CityBean> cityList = new ArrayList<CityBean>();
         String url = "http://www.zybank.com.cn/zyb/queryCityByProvinceId";
         Map<String,String> params = new HashMap<String,String>();
         params.put("provinceCode",pProvinceCode);
@@ -155,10 +158,11 @@ public class RequestDataImpl implements RequestData{
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return cityList;
 	}
 	
-	public void readBranchBank(String pBankCode, String pCityCode) {
-
+	public List<BranchBankBean> readBranchBank(String pBankCode, String pCityCode) {
+		List<BranchBankBean> branchBankList = new ArrayList<BranchBankBean>();
         String url = "http://www.zybank.com.cn/zyb/queryallrtgsnode.do";
         Map<String,String> params = new HashMap<String,String>();
         params.put("cityCode",pCityCode);
@@ -189,6 +193,7 @@ public class RequestDataImpl implements RequestData{
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return branchBankList;
 	}
 
 	/**
@@ -200,12 +205,17 @@ public class RequestDataImpl implements RequestData{
 	 *	       2017年2月8日 下午4:09:19
 	 */
 	public void doRequestAll() throws  IOException, InterruptedException {
-        readAllBanks();    //查询所有的银行列表
-        readAllProvince();    //查询省份列表
+		List<BankBean> bankList = new ArrayList<BankBean>();
+		List<ProvinceBean> provinceList = new ArrayList<ProvinceBean>();
+		List<CityBean> cityList = new ArrayList<CityBean>();
+		List<BranchBankBean> branchBankList = new ArrayList<BranchBankBean>();
+
+		bankList = readAllBanks();    //查询所有的银行列表
+		provinceList = readAllProvince();    //查询省份列表
         //根据省份查询城市列表
         if(provinceList.size() != 0){
             for(ProvinceBean item : provinceList){
-                readAllCity(item.getProvinceCode());
+            	cityList.addAll(readAllCity(item.getProvinceCode()));
                 Thread.sleep(10);
             }
         }
@@ -214,7 +224,7 @@ public class RequestDataImpl implements RequestData{
         if(bankList.size() != 0 && cityList.size() != 0){
             for(BankBean bank : bankList){
             	for(CityBean city : cityList){
-                    readBranchBank(bank.getBankCode(), city.getCityCode());
+            		branchBankList.addAll(readBranchBank(bank.getBankCode(), city.getCityCode()));
                 	System.out.println(bank.getBankCode() + "," + city.getCityCode());
                     Thread.sleep(100);
                 }

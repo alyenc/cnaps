@@ -2,9 +2,14 @@ package com.alyenc.cnaps.service;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.List;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONObject;
+import com.alyenc.cnaps.bean.BankBean;
+import com.alyenc.cnaps.bean.BranchBankBean;
+import com.alyenc.cnaps.bean.CityBean;
+import com.alyenc.cnaps.bean.ProvinceBean;
 
 
 /**
@@ -14,13 +19,13 @@ public interface RequestData {
 
 	public JSONObject reuqestUrls(String url , Map<String,String> params) throws MalformedURLException, IOException;
 	
-	public void readAllBanks();
+	public List<BankBean> readAllBanks();
 
-	public void readAllProvince();
+	public List<ProvinceBean> readAllProvince();
 
-	public void readAllCity(String pProvinceCode);
+	public List<CityBean> readAllCity(String pProvinceCode);
 	
-	public void readBranchBank(String pBankCode, String pCityCode);
+	public List<BranchBankBean> readBranchBank(String pBankCode, String pCityCode);
 
 	/**
 	 * 请求全量数据，并保存到数据库
